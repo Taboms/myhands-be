@@ -1,4 +1,4 @@
-package tabom.myhands.common;
+package tabom.myhands.common.response;
 
 import lombok.Builder;
 import lombok.Getter;

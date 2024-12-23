@@ -9,7 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import tabom.myhands.common.MessageResponse;
+import tabom.myhands.common.response.MessageResponse;
 
 @RestControllerAdvice
 @Slf4j

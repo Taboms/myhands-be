@@ -1,9 +1,9 @@
-package tabom.myhands.common;
+package tabom.myhands.common.response;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class DtoResponse <T> extends MessageResponse{
+public class DtoResponse <T> extends MessageResponse {
 
     T responseDto;
     public DtoResponse(HttpStatus status, String message, T dto){
