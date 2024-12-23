@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import tabom.myhands.domain.user.entity.Role;
 
 public class UserRequest {
 
@@ -18,6 +19,7 @@ public class UserRequest {
         private String password;
         private String photo;
         private Float dayoffCnt;
+        private Role role;
         private Integer employeeNum;
         private LocalDateTime joinedAt;
     }

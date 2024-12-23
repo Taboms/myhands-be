@@ -40,6 +40,10 @@ public class User {
     @Column(name = "employee_num", unique = true, nullable = false)
     private Integer employeeNum;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
     @Column(name = "joined_at", nullable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime joinedAt;
@@ -55,6 +59,7 @@ public class User {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .photo(request.getPhoto())
+                .role(request.getRole())
                 .dayoffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())

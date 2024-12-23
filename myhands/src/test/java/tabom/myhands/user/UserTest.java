@@ -3,6 +3,7 @@ package tabom.myhands.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tabom.myhands.domain.user.entity.Role;
 import tabom.myhands.domain.user.entity.User;
 import tabom.myhands.domain.user.repository.UserRepository;
 
@@ -25,6 +26,7 @@ public class UserTest {
                 .email("test@example.com")
                 .password("password123")
                 .photo("photo.jpg")
+                .role(Role.STAFF)
                 .dayoffCnt(10.5f)
                 .employeeNum(10001)
                 .joinedAt(LocalDateTime.of(2024, 12, 20, 10, 0))
