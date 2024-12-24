@@ -19,7 +19,7 @@ public class UserRequest {
         private String password;
         private String photo;
         private Float dayoffCnt;
-        private Role role;
+        private Integer role;
         private Integer employeeNum;
         private LocalDateTime joinedAt;
     }

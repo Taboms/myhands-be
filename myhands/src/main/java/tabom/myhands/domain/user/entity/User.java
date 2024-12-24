@@ -59,7 +59,7 @@ public class User {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .photo(request.getPhoto())
-                .role(request.getRole())
+                .role(Role.fromValue(request.getRole()))
                 .dayoffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())
