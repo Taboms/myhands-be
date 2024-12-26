@@ -20,8 +20,13 @@ public class User {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "department_id", nullable = false)
-    private Integer departmentId;
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @Column(nullable = false)
     private String name;
@@ -40,10 +45,6 @@ public class User {
     @Column(name = "employee_num", unique = true, nullable = false)
     private Integer employeeNum;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Role role;
-
     @Column(name = "joined_at", nullable = false, updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime joinedAt;
@@ -52,14 +53,14 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    public static User addUser(UserRequest.Join request) {
+    public static User addUser(UserRequest.Join request, Department department, Role role) {
         return User.builder()
-                .departmentId(request.getDepartmentId())
+                .department(department)
+                .role(role)
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .photo(request.getPhoto())
-                .role(Role.fromValue(request.getRole()))
                 .dayoffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())

@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode{
     EMAIL_ALREADY_EXISTS(2001, HttpStatus.BAD_REQUEST, "Email is already in use"),
-    INVALID_ROLE_VALUE(2002, HttpStatus.BAD_REQUEST, "Invalid Role value");
+    INVALID_ROLE_VALUE(2002, HttpStatus.BAD_REQUEST, "Invalid Role value"),
+    INVALID_DEPARTMENT_VALUE(2003, HttpStatus.BAD_REQUEST, "Invalid Department value");
 
     private final int code;
     private final HttpStatus httpStatus;
