@@ -3,9 +3,6 @@ package tabom.myhands.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -21,8 +18,5 @@ public class Role {
 
     @Column(name = "name", nullable = false, unique = true, length = 30)
     private String name;
-
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users = new ArrayList<>();
 }
 

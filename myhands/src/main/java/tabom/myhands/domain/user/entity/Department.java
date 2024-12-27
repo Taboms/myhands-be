@@ -3,9 +3,6 @@ package tabom.myhands.domain.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -21,9 +18,6 @@ public class Department {
 
     @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
-
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users = new ArrayList<>();
 }
 
 
