@@ -1,18 +1,16 @@
 package tabom.myhands.domain.user.dto;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import tabom.myhands.domain.user.entity.Role;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 public class UserRequest {
 
     @Getter
-    @Builder
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Join {
