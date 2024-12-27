@@ -32,6 +32,10 @@ public class UserServiceImpl implements UserService {
             throw new UserApiException(UserErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
+        if (userRepository.findByEmployeeNum(request.getEmployeeNum()).isPresent()) {
+            throw new UserApiException(UserErrorCode.EMPLOYEE_NUM_ALREADY_EXISTS);
+        }
+
         Role role = roleRepository.findById(request.getRole())
                 .orElseThrow(() -> new UserApiException(UserErrorCode.INVALID_ROLE_VALUE));
 
