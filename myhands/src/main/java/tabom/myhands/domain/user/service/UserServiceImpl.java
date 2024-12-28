@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = User.addUser(request, department, role);
-        user.setPhoto(photoUrl);
+        user.updatePhoto(photoUrl);
         userRepository.save(user);
     }
 }

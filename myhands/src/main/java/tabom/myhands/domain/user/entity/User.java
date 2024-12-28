@@ -9,7 +9,6 @@ import tabom.myhands.domain.user.dto.UserRequest;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -65,5 +64,9 @@ public class User {
                 .joinedAt(request.getJoinedAt())
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void updatePhoto(String photoUrl) {
+        this.photo = photoUrl;
     }
 }
