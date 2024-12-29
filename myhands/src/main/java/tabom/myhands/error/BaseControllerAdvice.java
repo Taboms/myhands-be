@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tabom.myhands.common.response.MessageResponse;
+import tabom.myhands.error.exception.ScheduleApiException;
 import tabom.myhands.error.exception.UserApiException;
 import tabom.myhands.common.response.ErrorResponse;
 
@@ -66,6 +67,17 @@ public class BaseControllerAdvice {
         log.error(req.getRequestURI());
         log.error(e.getClass().getCanonicalName());
         log.error(e.getErrorCode().getMessage());
+
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(ScheduleApiException.class)
+    public ResponseEntity<ErrorResponse> ItemApiException(ScheduleApiException e, HttpServletRequest req) {
+        log.error(req.getRequestURI());
+        log.error(e.getClass().getCanonicalName());
+        e.printStackTrace();
+        log.error(e.getMessage());
 
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.of(e.getErrorCode()));

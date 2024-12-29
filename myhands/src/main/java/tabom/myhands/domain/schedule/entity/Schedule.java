@@ -3,8 +3,10 @@ package tabom.myhands.domain.schedule.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import tabom.myhands.domain.schedule.dto.ScheduleRequest;
+import tabom.myhands.domain.user.entity.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "schedule")
 public class Schedule {
     @Id
@@ -21,26 +24,38 @@ public class Schedule {
     @Column(name="schedule_id", nullable = false)
     private Long scheduleId;
 
-    @Column(columnDefinition = "varchar(50)")
+    @Column(columnDefinition = "varchar(50)", nullable = false)
     private String title;
 
-    @Column(name = "start_at")
+    @Column(name = "start_at", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp startAt;
+    private LocalDateTime startAt;
 
-    @Column(name = "finish_at")
+    @Column(name = "finish_at", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp finishAt;
+    private LocalDateTime finishAt;
 
-    @Column(columnDefinition = "varchar(50)")
+    @Column(columnDefinition = "varchar(50)", nullable = false)
     private String place;
 
-    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "DATETIME")
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private int category;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    public static Schedule ScheduleCreate(ScheduleRequest.Create request, Long userId){
+        return Schedule.builder()
+                .title(request.getTitle())
+                .startAt(request.getStartAt())
+                .finishAt(request.getFinishAt())
+                .place(request.getPlace())
+                .category(request.getCategory())
+                .userId(userId)
+                .build();
+    }
 }
