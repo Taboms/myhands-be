@@ -15,6 +15,8 @@ public class ScheduleRequest {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Create{
+        private Long scheduleId;
+
         private String title;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" , timezone = "Asia/Seoul" )
@@ -29,4 +31,5 @@ public class ScheduleRequest {
 
         private List<Long> candidateList;
     }
+
 }
