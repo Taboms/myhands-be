@@ -52,37 +52,30 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Transactional
     public void updateSchedule(ScheduleRequest.Create request) {
         // 기존 일정 삭제
-        Optional<Schedule> beforeSchedule = scheduleRepository.findByScheduleId(request.getScheduleId());
-        if(!beforeSchedule.isPresent()) {
+        deleteSchedule(request.getScheduleId());
+
+        // 새 일정 추가
+        createSchedule(request);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSchedule(Long scheduleId) {
+        Optional<Schedule> schedule = scheduleRepository.findByScheduleId(scheduleId);
+        if(!schedule.isPresent()) {
             throw new ScheduleApiException(ScheduleErrorCode.Schedule_ID_NOT_FOUND);
         }
 
-        if(beforeSchedule.get().getUserId() != requester) {
+        if(schedule.get().getUserId() != requester) {
             throw new ScheduleApiException(ScheduleErrorCode.DO_NOT_NATCH);
         }
 
-        List<Candidate> beforeCandidates = candidateRepository.findBySchedule(beforeSchedule.get());
-        for(Candidate candidate : beforeCandidates) {
+        List<Candidate> candidates = candidateRepository.findBySchedule(schedule.get());
+        for(Candidate candidate : candidates) {
             candidateRepository.delete(candidate);
         }
 
-        scheduleRepository.delete(beforeSchedule.get());
-
-        // 새 일정 추가
-        checkScheduleValue(request);
-
-        Schedule schedule = Schedule.ScheduleCreate(request, requester);
-        scheduleRepository.save(schedule);
-
-        for(Long userId : request.getCandidateList()) {
-            Optional<User> user = userRepository.findByUserId(userId);
-            if (!user.isPresent()) {
-                throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
-            }
-
-            Candidate candidate = Candidate.CandidateCreate(user.get(), schedule);
-            candidateRepository.save(candidate);
-        }
+        scheduleRepository.delete(schedule.get());
     }
 
     public void checkScheduleValue(ScheduleRequest.Create request) {
