@@ -30,4 +30,9 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess()));
     }
 
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<MessageResponse> delete(@PathVariable Long scheduleId){
+        scheduleService.deleteSchedule(scheduleId);
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess()));
+    }
 }
