@@ -1,23 +1,23 @@
 package tabom.myhands.domain.user.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import tabom.myhands.domain.user.entity.Role;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 public class UserRequest {
 
     @Getter
-    @Builder
+    @Setter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class Join {
         private Integer departmentId;
         private String name;
         private String email;
         private String password;
-        private String photo;
         private Float dayoffCnt;
         private Integer role;
         private Integer employeeNum;

@@ -8,14 +8,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "role")
-public class Role {
+@Table(name = "department")
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "role_id", nullable = false)
-    private Integer roleId;
+    @Column(name = "department_id", nullable = false)
+    private Integer departmentId;
 
-    @Column(name = "name", nullable = false, unique = true, length = 30)
+    @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
 }
+
 
