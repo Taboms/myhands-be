@@ -27,18 +27,14 @@ public class ScheduleServiceImpl implements ScheduleService{
     private final CandidateRepository candidateRepository;
     private final UserRepository userRepository;
 
+    private final Long requester = 3L; // 요청 보낸 유저 아이디(임시)
+
     @Override
     @Transactional
     public void createSchedule(ScheduleRequest.Create request) {
-        if(request.getStartAt().isAfter(request.getFinishAt())) {
-            throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
-        }
+        checkScheduleValue(request);
 
-        if(request.getTitle().length() > 50 || request.getPlace().length() > 50) {
-            throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
-        }
-
-        Schedule schedule = Schedule.ScheduleCreate(request, 1L);
+        Schedule schedule = Schedule.ScheduleCreate(request, requester);
         scheduleRepository.save(schedule);
 
         for(Long userId : request.getCandidateList()) {
@@ -49,6 +45,53 @@ public class ScheduleServiceImpl implements ScheduleService{
 
             Candidate candidate = Candidate.CandidateCreate(user.get(), schedule);
             candidateRepository.save(candidate);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateSchedule(ScheduleRequest.Create request) {
+        // 기존 일정 삭제
+        Optional<Schedule> beforeSchedule = scheduleRepository.findByScheduleId(request.getScheduleId());
+        if(!beforeSchedule.isPresent()) {
+            throw new ScheduleApiException(ScheduleErrorCode.Schedule_ID_NOT_FOUND);
+        }
+
+        if(beforeSchedule.get().getUserId() != requester) {
+            throw new ScheduleApiException(ScheduleErrorCode.DO_NOT_NATCH);
+        }
+
+        List<Candidate> beforeCandidates = candidateRepository.findBySchedule(beforeSchedule.get());
+        for(Candidate candidate : beforeCandidates) {
+            candidateRepository.delete(candidate);
+        }
+
+        scheduleRepository.delete(beforeSchedule.get());
+
+        // 새 일정 추가
+        checkScheduleValue(request);
+
+        Schedule schedule = Schedule.ScheduleCreate(request, requester);
+        scheduleRepository.save(schedule);
+
+        for(Long userId : request.getCandidateList()) {
+            Optional<User> user = userRepository.findByUserId(userId);
+            if (!user.isPresent()) {
+                throw new UserApiException(UserErrorCode.USER_ID_NOT_FOUND);
+            }
+
+            Candidate candidate = Candidate.CandidateCreate(user.get(), schedule);
+            candidateRepository.save(candidate);
+        }
+    }
+
+    public void checkScheduleValue(ScheduleRequest.Create request) {
+        if(request.getStartAt().isAfter(request.getFinishAt())) {
+            throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
+        }
+
+        if(request.getTitle().length() > 50 || request.getPlace().length() > 50) {
+            throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
         }
     }
 
