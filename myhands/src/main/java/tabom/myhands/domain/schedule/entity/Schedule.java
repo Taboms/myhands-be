@@ -35,7 +35,7 @@ public class Schedule {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime finishAt;
 
-    @Column(columnDefinition = "varchar(50)", nullable = false)
+    @Column(columnDefinition = "varchar(50)")
     private String place;
 
     @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "DATETIME")

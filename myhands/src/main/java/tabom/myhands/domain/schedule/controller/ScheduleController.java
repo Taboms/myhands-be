@@ -8,6 +8,7 @@ import tabom.myhands.common.response.DtoResponse;
 import tabom.myhands.common.properties.ResponseProperties;
 import tabom.myhands.common.response.MessageResponse;
 import tabom.myhands.domain.schedule.dto.ScheduleRequest;
+import tabom.myhands.domain.schedule.dto.ScheduleResponse;
 import tabom.myhands.domain.schedule.service.ScheduleService;
 
 @RestController
@@ -34,5 +35,15 @@ public class ScheduleController {
     public ResponseEntity<MessageResponse> delete(@PathVariable Long scheduleId){
         scheduleService.deleteSchedule(scheduleId);
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess()));
+    }
+
+    @GetMapping("/detail/{scheduleId}")
+    public ResponseEntity<DtoResponse<ScheduleResponse.ScheduleDetail>> detail(@PathVariable Long scheduleId){
+        ScheduleResponse.ScheduleDetail response = scheduleService.getScheduleDetail(scheduleId);
+
+        if(response == null) {
+            ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getFail(),null));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(),response));
     }
 }
