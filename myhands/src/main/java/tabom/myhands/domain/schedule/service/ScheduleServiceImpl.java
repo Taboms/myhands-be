@@ -83,7 +83,11 @@ public class ScheduleServiceImpl implements ScheduleService{
             throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
         }
 
-        if(request.getTitle().length() > 50 || request.getPlace().length() > 50) {
+        if(request.getTitle().length() > 50) {
+            throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
+        }
+
+        if(request.getPlace() != null && request.getPlace().length() > 50) {
             throw new ScheduleApiException(ScheduleErrorCode.INVALID_VALUE);
         }
     }
