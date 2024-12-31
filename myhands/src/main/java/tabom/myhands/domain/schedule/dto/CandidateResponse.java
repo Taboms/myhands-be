@@ -12,11 +12,13 @@ public class CandidateResponse {
     public static class Detail {
         private Long userId;
         private String photo;
+        private String name;
 
         public static CandidateResponse.Detail build(User user){
             return Detail.builder()
                     .userId(user.getUserId())
                     .photo(user.getPhoto())
+                    .name(user.getName())
                     .build();
         }
     }
