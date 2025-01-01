@@ -1,11 +1,16 @@
 package tabom.myhands.domain.user.entity;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import tabom.myhands.domain.user.dto.UserRequest;
+import tabom.myhands.error.errorcode.DayOffErrorCode;
+import tabom.myhands.error.exception.DayOffApiException;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -68,5 +73,12 @@ public class User {
 
     public void updatePhoto(String photoUrl) {
         this.photo = photoUrl;
+    }
+
+    public void updateDayOffCnt(Float amount) {
+        if (this.dayoffCnt < amount) {
+            throw new DayOffApiException(DayOffErrorCode.PERIOD_LIMIT_EXCEEDED);
+        }
+        this.dayoffCnt -= amount;
     }
 }
