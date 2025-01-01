@@ -15,6 +15,7 @@ public class UserResponse {
     public static class login{
         private String accessToken;
         private String refreshToken;
+        private Long userId;
         private String name;
         private String photo;
         private String role;
@@ -24,6 +25,7 @@ public class UserResponse {
             return login.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
+                    .userId(user.getUserId())
                     .name(user.getName())
                     .photo(user.getPhoto())
                     .role(user.getRole().getName())
