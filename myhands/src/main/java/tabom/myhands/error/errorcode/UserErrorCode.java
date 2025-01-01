@@ -13,7 +13,6 @@ public enum UserErrorCode implements ErrorCode{
     IMAGE_UPLOAD_FAILED(2004, HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload photo"),
     EMPLOYEE_NUM_ALREADY_EXISTS(2005, HttpStatus.BAD_REQUEST, "Employee number is already in use"),
     USER_ID_NOT_FOUND(2006, HttpStatus.NOT_FOUND, "User not found with the given ID"),
-    INVALID_REFRESH_TOKEN(2007, HttpStatus.UNAUTHORIZED, "Invalid or expired refresh token"),
     LOGIN_FAILED(2007, HttpStatus.UNAUTHORIZED, "Invalid email or password.");
 
     private final int code;

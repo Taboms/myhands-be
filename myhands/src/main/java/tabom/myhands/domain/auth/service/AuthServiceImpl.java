@@ -3,8 +3,10 @@ package tabom.myhands.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tabom.myhands.common.config.security.JwtTokenProvider;
-import tabom.myhands.domain.auth.dto.AuthRequest;
+import tabom.myhands.domain.auth.dto.AuthResponse;
+import tabom.myhands.error.errorcode.AuthErrorCode;
 import tabom.myhands.error.errorcode.UserErrorCode;
+import tabom.myhands.error.exception.AuthApiException;
 import tabom.myhands.error.exception.UserApiException;
 import tabom.myhands.domain.user.repository.UserRepository;
 
@@ -17,16 +19,27 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     @Override
-    public String refreshAccessToken(AuthRequest request) {
-        String storedToken = redisService.getRefreshToken(request.getUserId());
+    public AuthResponse retoken(String refreshToken) {
+        Long userId = jwtTokenProvider.validateAndGetUserId(refreshToken);
 
-        userRepository.findByUserId(request.getUserId())
+        userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserApiException(UserErrorCode.USER_ID_NOT_FOUND));
 
-        if (storedToken == null || !storedToken.equals(request.getRefreshToken())) {
-            throw new UserApiException(UserErrorCode.INVALID_REFRESH_TOKEN);
+        String storedToken = redisService.getRefreshToken(userId);
+
+        if (storedToken == null) {
+            throw new AuthApiException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        return jwtTokenProvider.generateAccessToken(request.getUserId());
+        if (!storedToken.equals(refreshToken)) {
+            throw new AuthApiException(AuthErrorCode.REFRESH_TOKEN_MISMATCH);
+        }
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
+        String newRefreshToken = jwtTokenProvider.generateAccessToken(userId);
+
+        redisService.saveRefreshToken(userId, newRefreshToken, jwtTokenProvider.getRefreshTokenExpireTime());
+
+        return new AuthResponse(newAccessToken, newRefreshToken);
     }
 }

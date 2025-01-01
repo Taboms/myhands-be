@@ -80,4 +80,10 @@ public class UserServiceImpl implements UserService {
 
         return UserResponse.login.build(accessToken, refreshToken, user);
     }
+
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserApiException(UserErrorCode.USER_ID_NOT_FOUND));
+    }
 }

@@ -1,7 +1,8 @@
 package tabom.myhands.domain.auth.service;
 
-import tabom.myhands.domain.auth.dto.AuthRequest;
+
+import tabom.myhands.domain.auth.dto.AuthResponse;
 
 public interface AuthService {
-    String refreshAccessToken(AuthRequest request);
+    AuthResponse retoken(String refreshToken);
 }

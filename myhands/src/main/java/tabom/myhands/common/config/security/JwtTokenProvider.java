@@ -1,6 +1,7 @@
 package tabom.myhands.common.config.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tabom.myhands.common.properties.JwtProperties;
 import tabom.myhands.domain.auth.service.RedisService;
+import tabom.myhands.error.errorcode.AuthErrorCode;
+import tabom.myhands.error.exception.AuthApiException;
 
 import java.util.Base64;
 import java.util.Date;
@@ -22,7 +25,6 @@ public class JwtTokenProvider {
     private final RedisService redisService;
     private final JwtProperties jwtProperties;
     private String secretKey;
-    private static final String HEADER_TOKEN_PREFIX = "Bearer ";
 
     @PostConstruct
     protected void init() {
@@ -57,6 +59,20 @@ public class JwtTokenProvider {
 
         redisService.saveRefreshToken(userId, refreshToken, jwtProperties.getRefreshTokenExpireTime());
         return refreshToken;
+    }
+
+    public Long validateAndGetUserId(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Long.valueOf(claims.getSubject());
+        } catch (ExpiredJwtException e) {
+            throw new AuthApiException(AuthErrorCode.EXPIRED_REFRESH_TOKEN);
+        } catch (Exception e) {
+            throw new AuthApiException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
     }
 
     public long getAccessTokenExpireTime() {
