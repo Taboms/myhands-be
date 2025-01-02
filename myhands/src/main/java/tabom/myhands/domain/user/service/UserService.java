@@ -9,4 +9,5 @@ public interface UserService {
     void join(UserRequest.Join request, MultipartFile photoFile);
     UserResponse.login login (UserRequest.login request);
     User getUserById(Long userId);
+    void logout(Long userId, String accessToken);
 }

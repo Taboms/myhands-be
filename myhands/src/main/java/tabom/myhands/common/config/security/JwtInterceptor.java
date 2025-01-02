@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tabom.myhands.domain.auth.service.RedisService;
 import tabom.myhands.domain.user.repository.UserRepository;
 import tabom.myhands.error.errorcode.AuthErrorCode;
 import tabom.myhands.error.errorcode.UserErrorCode;
@@ -21,6 +22,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final RedisService redisService;
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String authorizationHeader = request.getHeader("Authorization");
@@ -33,6 +35,10 @@ public class JwtInterceptor implements HandlerInterceptor {
         try {
             if (!jwtTokenProvider.validateToken(jwt)) {
                 throw new AuthApiException(AuthErrorCode.INVALID_TOKEN);
+            }
+
+            if (redisService.isBlacklisted(jwt)) {
+                throw new AuthApiException(AuthErrorCode.TOKEN_BLACKLISTED);
             }
 
             Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
