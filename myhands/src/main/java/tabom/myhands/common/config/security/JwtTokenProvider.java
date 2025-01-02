@@ -90,7 +90,13 @@ public class JwtTokenProvider {
         }
     }
 
-    public long getRefreshTokenExpireTime() {
-        return jwtProperties.getRefreshTokenExpireTime();
+    // 엑세스 토큰 무효화하기 위한 만료 시간 계산
+    public long getExpirationTime(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
 }

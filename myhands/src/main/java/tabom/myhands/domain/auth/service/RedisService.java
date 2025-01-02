@@ -16,6 +16,10 @@ public class RedisService {
         redisTemplate.opsForValue().set(getKey(userId), refreshToken, expirationTime, TimeUnit.MILLISECONDS);
     }
 
+    public void addToBlacklist(String accessToken, long expirationTime) {
+        redisTemplate.opsForValue().set(getBlacklistKey(accessToken), "true", expirationTime, TimeUnit.MILLISECONDS);
+    }
+
     public String getRefreshToken(Long userId) {
         return redisTemplate.opsForValue().get(getKey(userId));
     }
@@ -24,7 +28,15 @@ public class RedisService {
         redisTemplate.delete(getKey(userId));
     }
 
+    public boolean isBlacklisted(String accessToken) {
+        return redisTemplate.hasKey(getBlacklistKey(accessToken));
+    }
+
     private String getKey(Long userId) {
         return "refreshToken:" + userId;
+    }
+
+    private String getBlacklistKey(String token) {
+        return "blacklist:" + token;
     }
 }
