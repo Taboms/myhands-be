@@ -39,3 +39,4 @@ out/
 ### properties ###
 application-db.properties
 application-aws.properties
+application-jwt.properties
