@@ -19,16 +19,11 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
 
     @Override
-    public AuthResponse retoken(String refreshToken) {
-        Long userId = jwtTokenProvider.validateAndGetUserId(refreshToken);
-
-        userRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserApiException(UserErrorCode.USER_ID_NOT_FOUND));
-
+    public AuthResponse retoken(Long userId, String refreshToken) {
         String storedToken = redisService.getRefreshToken(userId);
 
         if (storedToken == null) {
-            throw new AuthApiException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+            throw new AuthApiException(AuthErrorCode.INVALID_TOKEN);
         }
 
         if (!storedToken.equals(refreshToken)) {
