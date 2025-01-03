@@ -26,8 +26,8 @@ public class DayOffController {
     }
 
     @GetMapping("/count")
-    public ResponseEntity<DtoResponse<DayOffResponse.getCount>> getCount(@RequestBody DayOffRequest.GetCount request) {
-        DayOffResponse.getCount response = dayOffService.getDayOffCount(request.getUserId());
+    public ResponseEntity<DtoResponse<DayOffResponse.getCount>> getCount(@RequestParam Long userId) {
+        DayOffResponse.getCount response = dayOffService.getDayOffCount(userId);
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
     }
 }
