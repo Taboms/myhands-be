@@ -11,8 +11,6 @@ import tabom.myhands.domain.dayOff.dto.DayOffRequest;
 import tabom.myhands.domain.dayOff.entity.FullOff;
 import tabom.myhands.domain.dayOff.entity.HalfOff;
 import tabom.myhands.domain.dayOff.repository.DayOffRepository;
-import tabom.myhands.domain.dayOff.repository.FullOffRepository;
-import tabom.myhands.domain.dayOff.repository.HalfOffRepository;
 import tabom.myhands.domain.user.entity.User;
 import tabom.myhands.domain.user.repository.UserRepository;
 import tabom.myhands.error.errorcode.DayOffErrorCode;
@@ -29,11 +27,8 @@ import java.util.Optional;
 public class DayOffServiceImpl implements DayOffService {
 
     private final DayOffRepository dayOffRepository;
-    private final FullOffRepository fullOffRepository;
-    private final HalfOffRepository halfOffRepository;
     private final UserRepository userRepository;
     private final RedisTemplate<String, Object> dayOffRedisTemplate;
-    private final DayOffProperties DayOffProperties;
     private final DayOffProperties dayOffProperties;
     private final DayOffRedisService dayOffRedisService;
 
@@ -54,9 +49,6 @@ public class DayOffServiceImpl implements DayOffService {
             isDuplicated(user, request);
 
             FullOff fullOff = FullOff.createFullOff(user, request);
-
-            LocalDate startAt = request.getStartAt();
-            LocalDate finishAt = request.getFinishAt();
 
             dayOffRepository.save(fullOff);
             dayOffRedisService.saveDayOffToRedis(user);
@@ -125,10 +117,8 @@ public class DayOffServiceImpl implements DayOffService {
         }
     }
 
-    private static final String REDIS_KEY_PREFIX = "dayoff:";
-
     private void isDuplicated(User user, DayOffRequest.Create request) {
-        String key = REDIS_KEY_PREFIX + user.getUserId();
+        String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
         HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
 
         if (request.getOffType().equals("FULL")) {
@@ -137,8 +127,8 @@ public class DayOffServiceImpl implements DayOffService {
 
             for (LocalDate date = startAt; !date.isAfter(finishAt); date = date.plusDays(1)) {
                 String fullOff = hashOps.get(key, dayOffProperties.getFullPrefix() + date.toString());
-                String morning = hashOps.get(key, dayOffProperties.getMorning() + date.toString());
-                String afternoon = hashOps.get(key, dayOffProperties.getAfternoon() + date.toString());
+                String morning = hashOps.get(key, dayOffProperties.getMorningPrefix() + date.toString());
+                String afternoon = hashOps.get(key, dayOffProperties.getAfternoonPrefix() + date.toString());
                 if (fullOff != null || morning != null || afternoon != null) {
                     throw new DayOffApiException(DayOffErrorCode.DUPLICATE_DAY_OFF_REQUEST);
                 }
@@ -146,12 +136,20 @@ public class DayOffServiceImpl implements DayOffService {
             }
         } else if (request.getOffType().equals("HALF")) {
             LocalDate requestDate = request.getRequestDate();
-            String isMorning = request.getMorning() ? DayOffProperties.getMorning() : DayOffProperties.getAfternoon();
+            String value = hashOps.get(key, dayOffProperties.getFullPrefix() + requestDate.toString());
+            if (value != null) { // 당일 휴가가 있는 경우
+                throw new DayOffApiException(DayOffErrorCode.DUPLICATE_DAY_OFF_REQUEST);
+            }
 
-            String halfOff = hashOps.get(key, isMorning + requestDate.toString());
-            String fullDayOff = hashOps.get(key, dayOffProperties.getFullPrefix() + requestDate.toString());
-            if ("FULL".equals(fullDayOff) || isMorning.equals(halfOff)) {
-                //해당 날짜에 휴가가 있거나, (오늘이 아닌) 요청 날짜 같은 시각(오전/오후)에 반차가 있는 경우
+            String hashKey;
+            if (request.getMorning()) {
+                hashKey = dayOffProperties.getMorningPrefix() + requestDate.toString();
+            } else {
+                hashKey = dayOffProperties.getAfternoonPrefix() + requestDate.toString();
+            }
+
+            value = hashOps.get(key, hashKey);
+            if (value != null) {
                 throw new DayOffApiException(DayOffErrorCode.DUPLICATE_DAY_OFF_REQUEST);
             }
         }

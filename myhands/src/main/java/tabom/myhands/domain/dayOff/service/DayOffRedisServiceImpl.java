@@ -32,7 +32,7 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
 
     @Override
     public void saveDayOffToRedis(User user) {
-        String key = "dayoff:" + user.getUserId();
+        String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
         HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
 
         Map<String, String> existingData = hashOps.entries(key);
@@ -55,12 +55,17 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
         List<HalfOff> halfOffList = halfOffRepository.findHalfOffsByUser(user);
         for (HalfOff halfOff : halfOffList) {
             LocalDate requestDate = halfOff.getRequestDate();
-            String redisKey = (halfOff.getMorning() ? dayOffProperties.getMorning() : dayOffProperties.getAfternoon())
-                    + requestDate.toString();
 
-            hashOps.put(key, redisKey, redisKey.contains(dayOffProperties.getMorning())
-                    ? dayOffProperties.getMorning()
-                    : dayOffProperties.getAfternoon());
+            String redisKey, value;
+            if (halfOff.getMorning()) {
+                redisKey = dayOffProperties.getMorningPrefix() + requestDate.toString();
+                value = dayOffProperties.getMorning();
+            } else {
+                redisKey = dayOffProperties.getAfternoonPrefix() + requestDate.toString();
+                value = dayOffProperties.getAfternoon();
+            }
+
+            hashOps.put(key, redisKey, value);
             keysToDelete.remove(redisKey);
 
             dayOffCount += 0.5f;
@@ -70,7 +75,6 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
             hashOps.delete(key, staleKey);
         }
 
-        String countKey = "dayOffCnt";
-        hashOps.put(key, countKey, String.valueOf(dayOffCount));
+        hashOps.put(key, dayOffProperties.getDayOffCnt(), String.valueOf(dayOffCount));
     }
 }
