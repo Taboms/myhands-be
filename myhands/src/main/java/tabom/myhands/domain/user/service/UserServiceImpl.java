@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import tabom.myhands.common.config.security.JwtTokenProvider;
+import tabom.myhands.domain.dayOff.service.DayOffRedisService;
 import tabom.myhands.domain.auth.service.RedisService;
 import tabom.myhands.domain.user.dto.UserRequest;
 import tabom.myhands.domain.user.dto.UserResponse;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final DepartmentRepository departmentRepository;
     private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
+    private final DayOffRedisService dayOffRedisService;
     private final RedisService redisService;
 
     @Transactional
@@ -75,6 +77,8 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
+
+        dayOffRedisService.saveDayOffToRedis(user);
 
         return UserResponse.login.build(accessToken, refreshToken, user);
     }

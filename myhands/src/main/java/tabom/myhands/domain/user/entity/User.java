@@ -1,11 +1,14 @@
 package tabom.myhands.domain.user.entity;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import tabom.myhands.domain.user.dto.UserRequest;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -39,7 +42,7 @@ public class User {
     private String photo;
 
     @Column(name = "dayoff_cnt")
-    private Float dayoffCnt;
+    private Float dayOffCnt;
 
     @Column(name = "employee_num", unique = true, nullable = false)
     private Integer employeeNum;
@@ -59,7 +62,7 @@ public class User {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(request.getPassword())
-                .dayoffCnt(request.getDayoffCnt())
+                .dayOffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())
                 .createdAt(LocalDateTime.now())

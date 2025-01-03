@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tabom.myhands.common.response.MessageResponse;
 import tabom.myhands.error.exception.AuthApiException;
+import tabom.myhands.error.exception.DayOffApiException;
 import tabom.myhands.error.exception.BoardApiException;
 import tabom.myhands.error.exception.ScheduleApiException;
 import tabom.myhands.error.exception.UserApiException;
@@ -107,4 +108,14 @@ public class BaseControllerAdvice {
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
 
+    @ExceptionHandler(DayOffApiException.class)
+    public ResponseEntity<ErrorResponse> handleDayOffApiException(DayOffApiException e, HttpServletRequest req) {
+        log.error(req.getRequestURI());
+        log.error(e.getClass().getCanonicalName());
+        e.printStackTrace();
+        log.error(e.getMessage());
+
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
 }
