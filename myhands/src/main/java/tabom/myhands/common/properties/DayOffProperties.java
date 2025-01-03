@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "day-off")
+@ConfigurationProperties(prefix = "dayoff")
 public class DayOffProperties {
     private final String redisKeyPrefix;
     private final String full;

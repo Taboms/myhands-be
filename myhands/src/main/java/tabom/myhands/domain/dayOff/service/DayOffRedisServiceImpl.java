@@ -79,11 +79,14 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
     }
 
     @Override
-    public Float getDayOffCnt(User user) {
+    public Float getUsedDayOffCnt(User user) {
         String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
         HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
         String value = hashOps.get(key, dayOffProperties.getDayOffCnt());
-        Float dayOffCnt = Float.parseFloat(value);
+        if (value == null) {
+            return 0f;
+        }
+        float dayOffCnt = Float.parseFloat(value);
         return dayOffCnt;
     }
 }

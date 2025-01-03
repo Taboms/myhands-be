@@ -122,7 +122,7 @@ public class DayOffCheckValidateServiceImpl implements DayOffCheckValidateServic
 
     @Override
     public void dayOffCntCheck(User user, DayOffRequest.Create request) {
-        Float usedDayOffCnt = dayOffRedisService.getDayOffCnt(user);
+        Float usedDayOffCnt = dayOffRedisService.getUsedDayOffCnt(user);
         Float allDayOffCnt = user.getDayOffCnt();
 
         if (request.getOffType().equals("FULL")) {
