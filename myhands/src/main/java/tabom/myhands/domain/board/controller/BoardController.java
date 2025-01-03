@@ -32,4 +32,14 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(),response));
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<DtoResponse<BoardResponse.PostList>> list(
+            @RequestParam int category,
+            @RequestParam(required = false) Long lastId, // 마지막 ID
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        BoardResponse.PostList response = boardService.list(category, lastId, size);
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
+    }
+
 }
