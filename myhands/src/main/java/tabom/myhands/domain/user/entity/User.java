@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import tabom.myhands.domain.user.dto.UserRequest;
-import tabom.myhands.error.errorcode.DayOffErrorCode;
-import tabom.myhands.error.exception.DayOffApiException;
 
 import java.time.LocalDateTime;
 
@@ -73,12 +71,5 @@ public class User {
 
     public void updatePhoto(String photoUrl) {
         this.photo = photoUrl;
-    }
-
-    public void updateDayOffCnt(Float amount) {
-        if (this.dayoffCnt < amount) {
-            throw new DayOffApiException(DayOffErrorCode.PERIOD_LIMIT_EXCEEDED);
-        }
-        this.dayoffCnt -= amount;
     }
 }
