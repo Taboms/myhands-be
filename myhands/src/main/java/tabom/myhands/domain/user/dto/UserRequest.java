@@ -23,4 +23,11 @@ public class UserRequest {
         private Integer employeeNum;
         private LocalDateTime joinedAt;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class login{
+        private String email;
+        private String password;
+    }
 }

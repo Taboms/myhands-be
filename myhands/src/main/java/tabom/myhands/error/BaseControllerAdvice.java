@@ -10,6 +10,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tabom.myhands.common.response.MessageResponse;
+import tabom.myhands.error.exception.AuthApiException;
+import tabom.myhands.error.exception.BoardApiException;
 import tabom.myhands.error.exception.ScheduleApiException;
 import tabom.myhands.error.exception.UserApiException;
 import tabom.myhands.common.response.ErrorResponse;
@@ -83,5 +85,26 @@ public class BaseControllerAdvice {
                 .body(ErrorResponse.of(e.getErrorCode()));
     }
 
+    @ExceptionHandler(AuthApiException.class)
+    public ResponseEntity<ErrorResponse> handleAuthApiException(AuthApiException e, HttpServletRequest req) {
+        log.debug("AuthApiException");
+        log.error(req.getRequestURI());
+        log.error(e.getClass().getCanonicalName());
+        log.error(e.getErrorCode().getMessage());
+
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(BoardApiException.class)
+    public ResponseEntity<ErrorResponse> handleBoardApiException(BoardApiException e, HttpServletRequest req) {
+        log.debug("BoardApiException");
+        log.error(req.getRequestURI());
+        log.error(e.getClass().getCanonicalName());
+        log.error(e.getErrorCode().getMessage());
+
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getErrorCode()));
+    }
 
 }
