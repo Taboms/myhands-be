@@ -42,7 +42,7 @@ public class User {
     private String photo;
 
     @Column(name = "dayoff_cnt")
-    private Float dayoffCnt;
+    private Float dayOffCnt;
 
     @Column(name = "employee_num", unique = true, nullable = false)
     private Integer employeeNum;
@@ -62,7 +62,7 @@ public class User {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(request.getPassword())
-                .dayoffCnt(request.getDayoffCnt())
+                .dayOffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())
                 .createdAt(LocalDateTime.now())
