@@ -37,13 +37,24 @@ public class BoardServiceImpl implements BoardService{
     @Override
     public BoardResponse.PostList list(int category, Long lastId, int size) {
         if(lastId != null) {
-            Board board = boardRepository.findByBoardId(lastId)
-                    .orElseThrow(() -> new BoardApiException(BoardErrorCode.BOARD_ID_NOT_FOUND));
+            boardRepository.findByBoardId(lastId).orElseThrow(() -> new BoardApiException(BoardErrorCode.BOARD_ID_NOT_FOUND));
         }
 
         List<Board> boards = (lastId == null)
                 ? boardRepository.findFirstPage(category, size)
                 : boardRepository.findByLastId(category, lastId, size);
+        return BoardResponse.PostList.build(boards);
+    }
+
+    @Override
+    public BoardResponse.PostList search(int category, String word, Long lastId, int size) {
+        if(lastId != null) {
+            boardRepository.findByBoardId(lastId).orElseThrow(() -> new BoardApiException(BoardErrorCode.BOARD_ID_NOT_FOUND));
+        }
+        List<Board> boards = (lastId == null)
+                ? boardRepository.findWordFirstPage(category, word, size)
+                : boardRepository.findWordLastId(category, word, lastId, size);
+
         return BoardResponse.PostList.build(boards);
     }
 }

@@ -42,4 +42,14 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<DtoResponse<BoardResponse.PostList>> find(
+            @RequestParam int category,
+            @RequestParam String word,
+            @RequestParam(required = false) Long lastId,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        BoardResponse.PostList response = boardService.search(category, word, lastId, size);
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
+    }
 }
