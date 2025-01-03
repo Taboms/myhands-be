@@ -24,9 +24,11 @@ public abstract class DayOff {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
     private Boolean isCancelled;
+
     private String reason;
+    private LocalDateTime createdAt;
 
     protected DayOff(User user, String reason) {
         this.user = user;
