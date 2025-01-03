@@ -26,8 +26,8 @@ import java.util.Set;
 public class DayOffRedisServiceImpl implements DayOffRedisService {
 
     private final RedisTemplate<String, Object> dayOffRedisTemplate;
-    private final FullOffRepository fullOffRepository;
     private final DayOffProperties dayOffProperties;
+    private final FullOffRepository fullOffRepository;
     private final HalfOffRepository halfOffRepository;
 
     @Override
@@ -76,5 +76,14 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
         }
 
         hashOps.put(key, dayOffProperties.getDayOffCnt(), String.valueOf(dayOffCount));
+    }
+
+    @Override
+    public Float getDayOffCnt(User user) {
+        String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
+        HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
+        String value = hashOps.get(key, dayOffProperties.getDayOffCnt());
+        Float dayOffCnt = Float.parseFloat(value);
+        return dayOffCnt;
     }
 }
