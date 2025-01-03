@@ -26,4 +26,9 @@ public class DayOffRequest {
         @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         private LocalDate requestDate;
     }
+
+    @Getter
+    public static class GetCount {
+        private Long userId;
+    }
 }
