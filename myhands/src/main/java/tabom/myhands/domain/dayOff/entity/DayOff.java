@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import tabom.myhands.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -25,10 +27,15 @@ public abstract class DayOff {
     private User user;
 
     @Column(nullable = false)
+    @ColumnDefault("false")
     private Boolean isCancelled;
 
-    private String reason;
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    private String reason;
+
 
     protected DayOff(User user, String reason) {
         this.user = user;
