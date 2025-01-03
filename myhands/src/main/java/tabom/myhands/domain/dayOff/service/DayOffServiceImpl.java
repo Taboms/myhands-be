@@ -2,8 +2,11 @@ package tabom.myhands.domain.dayOff.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tabom.myhands.common.properties.DayOffProperties;
 import tabom.myhands.domain.dayOff.dto.DayOffRequest;
 import tabom.myhands.domain.dayOff.entity.FullOff;
 import tabom.myhands.domain.dayOff.entity.HalfOff;
@@ -17,8 +20,6 @@ import tabom.myhands.error.exception.DayOffApiException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,10 @@ public class DayOffServiceImpl implements DayOffService {
     private final FullOffRepository fullOffRepository;
     private final HalfOffRepository halfOffRepository;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, Object> dayOffRedisTemplate;
+    private final DayOffProperties DayOffProperties;
+    private final DayOffProperties dayOffProperties;
+    private final DayOffRedisService dayOffRedisService;
 
     @Override
     @Transactional
@@ -47,20 +52,22 @@ public class DayOffServiceImpl implements DayOffService {
         if (request.getOffType().equals("FULL")) {
             validateFullOffInput(user, request);
             isDuplicated(user, request);
+
             FullOff fullOff = FullOff.createFullOff(user, request);
 
             LocalDate startAt = request.getStartAt();
             LocalDate finishAt = request.getFinishAt();
-            float amount = ((float) ChronoUnit.DAYS.between(startAt, finishAt)) + 1f;
 
-            user.updateDayOffCnt(amount);
             dayOffRepository.save(fullOff);
+            dayOffRedisService.saveDayOffToRedis(user);
         } else if (request.getOffType().equals("HALF")) {
             validateHalfOffInput(user, request);
             isDuplicated(user, request);
+
             HalfOff halfOff = HalfOff.createHalfOff(user, request);
-            user.updateDayOffCnt(0.5f);
+
             dayOffRepository.save(halfOff);
+            dayOffRedisService.saveDayOffToRedis(user);
         } else {
             throw new DayOffApiException(DayOffErrorCode.INVALID_OFF_TYPE);
         }
@@ -98,7 +105,7 @@ public class DayOffServiceImpl implements DayOffService {
     }
 
     private void validateHalfOffInput(User user, DayOffRequest.Create request) {
-        //요청 시각이 현재보다 이전
+        //요청 시각이 현재보다 이전인 경우
         LocalDate currentDate = LocalDate.now();
         LocalDate requestDate = request.getRequestDate();
         Boolean morning = request.getMorning();
@@ -107,62 +114,44 @@ public class DayOffServiceImpl implements DayOffService {
             throw new DayOffApiException(DayOffErrorCode.INVALID_DATE_RANGE);
         }
 
-        // 당일에 경우 오전, 오후 판단
-        LocalDateTime now = LocalDateTime.now();
-        int hour = now.getHour();
-        if (requestDate.isEqual(currentDate) && hour < 12 && morning) {
-            throw new DayOffApiException(DayOffErrorCode.INVALID_DATE_RANGE);
+        if (requestDate.isEqual(currentDate)) {
+            LocalDateTime now = LocalDateTime.now();
+            int hour = now.getHour();
+            if (hour < 12 && morning) { //현재 시각이 오전일 때, 오전 반차를 쓰는 경우
+                throw new DayOffApiException(DayOffErrorCode.INVALID_DATE_RANGE);
+            } else if (hour >= 12) { //현재 시각이 오후일 때, 당일 반차를 쓰는 경우
+                throw new DayOffApiException(DayOffErrorCode.INVALID_DATE_RANGE);
+            }
         }
     }
 
-    private static final LocalDate BASE_DATE = LocalDate.of(2024, 1, 1);
+    private static final String REDIS_KEY_PREFIX = "dayoff:";
 
     private void isDuplicated(User user, DayOffRequest.Create request) {
-        int[][] imos = new int[2][10001]; // 1행에는 존재유무, 2행에는 오전 여부(오전:1, 오후:2)
-        List<FullOff> fullOffList = fullOffRepository.findFullOffsByUser(user);
-        List<HalfOff> halfOffList = halfOffRepository.findHalfOffsByUser(user);
-
-        for (FullOff fullOff : fullOffList) {
-            LocalDate startDate = fullOff.getStartDate();
-            LocalDate finishDate = fullOff.getFinishDate();
-            int startIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, startDate);
-            int finishIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, finishDate);
-            imos[0][startIndex]++;
-            imos[0][finishIndex + 1]--;
-        }
-
-        for (HalfOff halfOff : halfOffList) {
-            LocalDate requestDate = halfOff.getRequestDate();
-            Boolean morning = halfOff.getMorning();
-            int requestIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, requestDate);
-            imos[0][requestIndex]++;
-            if (morning) imos[1][requestIndex] = 1;
-            else imos[1][requestIndex] = 2;
-        }
-
-        for (int i = 0; i < imos[0].length - 1; i++) {
-            imos[0][i + 1] += imos[0][i];
-        }
+        String key = REDIS_KEY_PREFIX + user.getUserId();
+        HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
 
         if (request.getOffType().equals("FULL")) {
             LocalDate startAt = request.getStartAt();
             LocalDate finishAt = request.getFinishAt();
-            int startIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, startAt);
-            int finishIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, finishAt);
 
-            for (int i = startIndex; i <= finishIndex; i++) {
-                if (imos[0][i] > 0) {
+            for (LocalDate date = startAt; !date.isAfter(finishAt); date = date.plusDays(1)) {
+                String fullOff = hashOps.get(key, dayOffProperties.getFullPrefix() + date.toString());
+                String morning = hashOps.get(key, dayOffProperties.getMorning() + date.toString());
+                String afternoon = hashOps.get(key, dayOffProperties.getAfternoon() + date.toString());
+                if (fullOff != null || morning != null || afternoon != null) {
                     throw new DayOffApiException(DayOffErrorCode.DUPLICATE_DAY_OFF_REQUEST);
                 }
+
             }
         } else if (request.getOffType().equals("HALF")) {
             LocalDate requestDate = request.getRequestDate();
-            Boolean morning = request.getMorning();
-            int requestIndex = (int) ChronoUnit.DAYS.between(BASE_DATE, requestDate);
-            int morningIndex = 0;
-            if (morning) morningIndex = 1;
-            else morningIndex = 2;
-            if (imos[0][requestIndex] > 0 && (imos[1][requestIndex] == 0 || imos[1][requestIndex] == morningIndex)) {
+            String isMorning = request.getMorning() ? DayOffProperties.getMorning() : DayOffProperties.getAfternoon();
+
+            String halfOff = hashOps.get(key, isMorning + requestDate.toString());
+            String fullDayOff = hashOps.get(key, dayOffProperties.getFullPrefix() + requestDate.toString());
+            if ("FULL".equals(fullDayOff) || isMorning.equals(halfOff)) {
+                //해당 날짜에 휴가가 있거나, (오늘이 아닌) 요청 날짜 같은 시각(오전/오후)에 반차가 있는 경우
                 throw new DayOffApiException(DayOffErrorCode.DUPLICATE_DAY_OFF_REQUEST);
             }
         }
