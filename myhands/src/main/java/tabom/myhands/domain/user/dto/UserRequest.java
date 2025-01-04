@@ -28,8 +28,9 @@ public class UserRequest {
     }
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    public static class login{
+    public static class Login{
         private String email;
         private String password;
     }

@@ -33,8 +33,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DtoResponse<UserResponse.login>> loginUser(@RequestBody UserRequest.login request) {
-        UserResponse.login response = userService.login(request);
+    public ResponseEntity<DtoResponse<UserResponse.Login>> loginUser(@RequestBody UserRequest.Login request) {
+        UserResponse.Login response = userService.login(request);
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
     }
 
@@ -44,6 +44,13 @@ public class UserController {
         String accessToken = TokenUtils.extractToken(accessTokenHeader);
         userService.logout(userId, accessToken);
         return ResponseEntity.status(HttpStatus.OK).body(MessageResponse.of(HttpStatus.OK, responseProperties.getSuccess()));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<DtoResponse<UserResponse.UserList>> getList(HttpServletRequest request){
+        Long userId = (Long) request.getAttribute("userId");
+        UserResponse.UserList response =  userService.getList(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
     }
 
 }

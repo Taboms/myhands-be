@@ -7,7 +7,8 @@ import tabom.myhands.domain.user.entity.User;
 
 public interface UserService {
     void join(UserRequest.Join request, MultipartFile photoFile);
-    UserResponse.login login (UserRequest.login request);
+    UserResponse.Login login (UserRequest.Login request);
     User getUserById(Long userId);
     void logout(Long userId, String accessToken);
+    UserResponse.UserList getList(Long userId);
 }
