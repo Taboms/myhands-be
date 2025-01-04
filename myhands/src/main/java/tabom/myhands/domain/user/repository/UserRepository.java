@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM user WHERE user_id != :userId ORDER BY name, department_id, role_id", nativeQuery = true)
     List<User> findAllExceptCurrentUser(@Param("userId") Long userId);
+
+    @Query(value = "SELECT * FROM user ORDER BY name, department_id, role_id, email", nativeQuery = true)
+    List<User> findAllUser();
 }

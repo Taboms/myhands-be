@@ -11,4 +11,5 @@ public interface UserService {
     User getUserById(Long userId);
     void logout(Long userId, String accessToken);
     UserResponse.UserList getList(Long userId);
+    UserResponse.UserList getContactList();
 }

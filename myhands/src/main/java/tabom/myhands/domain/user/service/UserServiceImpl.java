@@ -100,4 +100,10 @@ public class UserServiceImpl implements UserService {
         List<User> list = userRepository.findAllExceptCurrentUser(userId);
         return UserResponse.UserList.listBuild(list, false);
     }
+
+    @Override
+    public UserResponse.UserList getContactList() {
+        List<User> list = userRepository.findAllUser();
+        return UserResponse.UserList.listBuild(list, true);
+    }
 }

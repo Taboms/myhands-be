@@ -53,4 +53,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
     }
 
+    @GetMapping("/contact")
+    public ResponseEntity<DtoResponse<UserResponse.UserList>> getContactList(HttpServletRequest request){
+        UserResponse.UserList response =  userService.getContactList();
+        return ResponseEntity.status(HttpStatus.OK).body(DtoResponse.of(HttpStatus.OK, responseProperties.getSuccess(), response));
+    }
+
 }
