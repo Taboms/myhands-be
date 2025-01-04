@@ -40,3 +40,4 @@ out/
 application-db.properties
 application-aws.properties
 application-jwt.properties
+application-test.properties

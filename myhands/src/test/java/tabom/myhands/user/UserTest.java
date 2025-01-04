@@ -3,6 +3,8 @@ package tabom.myhands.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import tabom.myhands.domain.user.entity.Department;
 import tabom.myhands.domain.user.entity.Role;
 import tabom.myhands.domain.user.entity.User;
@@ -16,6 +18,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@TestPropertySource("classpath:application-test.properties")
+@Transactional
 public class UserTest {
 
     @Autowired
@@ -44,7 +48,7 @@ public class UserTest {
                 .email("test@example.com")
                 .password("password123")
                 .photo("photo.jpg")
-                .dayoffCnt(10.5f)
+                .dayOffCnt(10.5f)
                 .employeeNum(10001)
                 .joinedAt(LocalDateTime.of(2024, 12, 20, 10, 0))
                 .createdAt(LocalDateTime.now())
