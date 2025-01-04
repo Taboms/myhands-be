@@ -40,7 +40,7 @@ public class DayOffServiceImpl implements DayOffService {
             FullOff fullOff = FullOff.createFullOff(user, request);
 
             dayOffRepository.save(fullOff);
-            dayOffRedisService.saveDayOffToRedis(user);
+            dayOffRedisService.addFullOff(fullOff);
         } else if (request.getOffType().equals("HALF")) {
             dayOffCheckValidateService.validateHalfOffInput(user, request);
             dayOffCheckValidateService.duplicateCheck(user, request);
@@ -49,7 +49,7 @@ public class DayOffServiceImpl implements DayOffService {
             HalfOff halfOff = HalfOff.createHalfOff(user, request);
 
             dayOffRepository.save(halfOff);
-            dayOffRedisService.saveDayOffToRedis(user);
+            dayOffRedisService.addHalfOff(halfOff);
         } else {
             throw new DayOffApiException(DayOffErrorCode.INVALID_OFF_TYPE);
         }

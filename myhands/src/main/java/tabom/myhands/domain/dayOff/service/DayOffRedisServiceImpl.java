@@ -31,7 +31,43 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
     private final HalfOffRepository halfOffRepository;
 
     @Override
-    public void saveDayOffToRedis(User user) {
+    public void addFullOff(FullOff fullOff) {
+        User user = fullOff.getUser();
+        String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
+        HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
+
+        Float dayOffCount = 0f;
+        String redisKey;
+        for (LocalDate date = fullOff.getStartDate(); !date.isAfter(fullOff.getFinishDate()); date = date.plusDays(1)) {
+            redisKey = dayOffProperties.getFullPrefix() + date.toString();
+            hashOps.put(key, redisKey, dayOffProperties.getFull());
+            dayOffCount++;
+        }
+
+        Float usedDayOffCnt = getUsedDayOffCnt(user);
+        hashOps.put(key, dayOffProperties.getDayOffCnt(), String.valueOf(usedDayOffCnt + dayOffCount));
+    }
+
+    @Override
+    public void addHalfOff(HalfOff halfOff) {
+        User user = halfOff.getUser();
+        String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
+        HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
+
+        if (halfOff.getMorning()) {
+            String redisKey = dayOffProperties.getMorningPrefix() + halfOff.getRequestDate();
+            hashOps.put(key, redisKey, dayOffProperties.getMorning());
+        } else {
+            String redisKey = dayOffProperties.getAfternoonPrefix() + halfOff.getRequestDate();
+            hashOps.put(key, redisKey, dayOffProperties.getAfternoon());
+        }
+
+        Float usedDayOffCnt = getUsedDayOffCnt(user);
+        hashOps.put(key, dayOffProperties.getDayOffCnt(), String.valueOf(usedDayOffCnt + 0.5f));
+    }
+
+    @Override
+    public void updateDayOff(User user) {
         String key = dayOffProperties.getRedisKeyPrefix() + user.getUserId();
         HashOperations<String, String, String> hashOps = dayOffRedisTemplate.opsForHash();
 
@@ -86,7 +122,6 @@ public class DayOffRedisServiceImpl implements DayOffRedisService {
         if (value == null) {
             return 0f;
         }
-        float dayOffCnt = Float.parseFloat(value);
-        return dayOffCnt;
+        return Float.parseFloat(value);
     }
 }

@@ -78,8 +78,6 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
 
-        dayOffRedisService.saveDayOffToRedis(user);
-
         return UserResponse.login.build(accessToken, refreshToken, user);
     }
 
