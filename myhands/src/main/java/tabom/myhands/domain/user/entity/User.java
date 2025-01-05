@@ -1,17 +1,23 @@
 package tabom.myhands.domain.user.entity;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import tabom.myhands.domain.user.dto.UserRequest;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "user")
 public class User {
     @Id
@@ -39,7 +45,7 @@ public class User {
     private String photo;
 
     @Column(name = "dayoff_cnt")
-    private Float dayoffCnt;
+    private Float dayOffCnt;
 
     @Column(name = "employee_num", unique = true, nullable = false)
     private Integer employeeNum;
@@ -50,7 +56,11 @@ public class User {
 
     @Column(name = "created_at", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @Column(columnDefinition = "varchar(20)")
+    private String phone;
 
     public static User addUser(UserRequest.Join request, Department department, Role role) {
         return User.builder()
@@ -59,10 +69,11 @@ public class User {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(request.getPassword())
-                .dayoffCnt(request.getDayoffCnt())
+                .dayOffCnt(request.getDayoffCnt())
                 .employeeNum(request.getEmployeeNum())
                 .joinedAt(request.getJoinedAt())
                 .createdAt(LocalDateTime.now())
+                .phone(request.getPhone())
                 .build();
     }
 

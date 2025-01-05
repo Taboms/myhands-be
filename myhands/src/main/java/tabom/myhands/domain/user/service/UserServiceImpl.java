@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import tabom.myhands.common.config.security.JwtTokenProvider;
+import tabom.myhands.domain.dayOff.service.DayOffRedisService;
 import tabom.myhands.domain.auth.service.RedisService;
 import tabom.myhands.domain.user.dto.UserRequest;
 import tabom.myhands.domain.user.dto.UserResponse;
@@ -19,6 +20,7 @@ import tabom.myhands.error.errorcode.UserErrorCode;
 import tabom.myhands.error.exception.UserApiException;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final DepartmentRepository departmentRepository;
     private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
+    private final DayOffRedisService dayOffRedisService;
     private final RedisService redisService;
 
     @Transactional
@@ -65,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse.login login(UserRequest.login request) {
+    public UserResponse.Login login(UserRequest.Login request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserApiException(UserErrorCode.LOGIN_FAILED));
 
@@ -76,7 +79,7 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
 
-        return UserResponse.login.build(accessToken, refreshToken, user);
+        return UserResponse.Login.build(accessToken, refreshToken, user);
     }
 
     @Override
@@ -90,5 +93,17 @@ public class UserServiceImpl implements UserService {
         redisService.deleteRefreshToken(userId);
         long expirationTime = jwtTokenProvider.getExpirationTime(accessToken);
         redisService.addToBlacklist(accessToken, expirationTime);
+    }
+
+    @Override
+    public UserResponse.UserList getList(Long userId) {
+        List<User> list = userRepository.findAllExceptCurrentUser(userId);
+        return UserResponse.UserList.listBuild(list, false);
+    }
+
+    @Override
+    public UserResponse.UserList getContactList() {
+        List<User> list = userRepository.findAllUser();
+        return UserResponse.UserList.listBuild(list, true);
     }
 }

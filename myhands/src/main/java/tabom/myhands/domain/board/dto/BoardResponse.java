@@ -24,7 +24,7 @@ public class BoardResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PostList {
-        private List<PostItem> overviewList;
+        private List<PostItem> boardList;
 
         public static PostList build(List<Board> boards) {
             List<PostItem> postItems = boards.stream()
@@ -35,7 +35,7 @@ public class BoardResponse {
                             .build())
                     .toList();
             return PostList.builder()
-                    .overviewList(postItems)
+                    .boardList(postItems)
                     .build();
         }
     }
